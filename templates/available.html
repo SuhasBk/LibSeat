@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibSeat</title>
+</head>
+<body> 
+    {% if available_seats|length > 0 %}
+        <h3>{{ msg }}</h3>
+        {% for seat in available_seats %}
+            <p>{{ loop.index }} ---&gt; From: {{ seat['start'] }} to {{ seat['end'] }}</p>
+        {% endfor %}
+    {% else %}
+        <h3>Looks like Library is closed and no more slots are available.</h3>
+    {% endif %}
+</body>
+</html>
