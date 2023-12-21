@@ -32,4 +32,4 @@ def reserve():
     
     return '<h1>Your reservation was successful! 🤙</h1>'
 
-app.run(port=8000, debug=True)
+app.run(port=8000, debug=False)
