@@ -1,4 +1,5 @@
 #!/usr/local/bin/python3
+import os, sys
 from flask import Flask, render_template, request
 from flask_restful import Api, Resource
 from flask_cors import CORS
@@ -78,4 +79,14 @@ class ReserveSlots(Resource):
 api.add_resource(Search, '/api/v1/search')
 api.add_resource(ReserveSlots, '/api/v1/reserve')
 
-app.run(port=8000, debug=False)
+if __name__=='__main__':
+    try:
+        ip = sys.argv[1]
+        port = sys.argv[2]
+    except IndexError:
+        ip = "0.0.0.0"
+        port = 8000
+    
+    debug = True if os.environ.get("HIDDEN_ID") == 'BATMAN' else False
+
+    app.run(host=ip,debug=debug,port=port)
