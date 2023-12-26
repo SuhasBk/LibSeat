@@ -78,4 +78,4 @@ class ReserveSlots(Resource):
 api.add_resource(Search, '/api/v1/search')
 api.add_resource(ReserveSlots, '/api/v1/reserve')
 
-app.run(port=8000, debug=True)
+app.run(port=8000, debug=False)
