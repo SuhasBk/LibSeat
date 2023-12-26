@@ -1,17 +1,9 @@
 #!/usr/local/bin/python3
-import requests, os
-from pyfiglet import figlet_format
+import requests, json
 from datetime import datetime, timedelta
-
-metaData = {
-    'lid': 10450,
-    'zone': 5909,
-    'gid': 29456,
-}
 
 # common header for all requests
 headers = {
-    'authority': 'uta.libcal.com',
     'accept': 'application/json, text/javascript, */*; q=0.01',
     'accept-language': 'en-US,en;q=0.9',
     'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -51,7 +43,7 @@ def choose_a_room():
     ch = int(input("\nEnter your choice:\n> ")) - 1
     return room_mappings[list(room_mappings.keys())[ch]]
 
-def search():
+def search(metaData):
     data = {
         'lid': metaData['lid'],
         'gid': metaData['gid'],
@@ -68,20 +60,14 @@ def search():
     url = 'https://uta.libcal.com/spaces/availability/grid'
 
     response = requests.post(url, headers=headers, data=data)
+    print(data)
     if response.ok:
         seats = list(filter(lambda seat: 'className' not in seat and seat['itemId'] == metaData['itemId'], response.json()['slots']))
-        
-        for seat in seats:
-            seat_time = seat['start'].split(' ')[1][:-3]
-            if seat['itemId'] == metaData['itemId'] and seat_time == metaData['time']:
-                return seats, seat['checksum']
-    
-        return seats, ''
-        
-    return [], ''
+        return seats
+    return []
 
 
-def add(seat_checksum):
+def add(metaData, seat_checksum):
     data = {
         'add[eid]': metaData['itemId'],
         'add[gid]': metaData['gid'],
@@ -99,13 +85,9 @@ def add(seat_checksum):
     response = requests.post(url, headers=headers, data=data)
     return response.json()['bookings'][0]['checksum'] if response.ok else ''
 
+def bulk_book(metaData):
+    bookings = json.dumps(metaData['bookings'])
 
-def book(checksum):
-    end_time_string = get_next_delta(metaData['time'], 'minutes', 30)
-    url = 'https://uta.libcal.com/ajax/space/book'
-    headers['content-type'] = 'multipart/form-data; boundary=----WebKitFormBoundaryhdaUJdAeBSWES7e8'
-
-    # <DO NOT TOUCH THIS FORMATTING OR INDENTATION
     data = f'''------WebKitFormBoundaryhdaUJdAeBSWES7e8
 Content-Disposition: form-data; name="session"
 
@@ -125,7 +107,7 @@ Content-Disposition: form-data; name="email"
 ------WebKitFormBoundaryhdaUJdAeBSWES7e8
 Content-Disposition: form-data; name="bookings"
 
-[{{"id":1,"eid":{metaData['itemId']},"seat_id":0,"gid":{metaData['gid']},"lid":{metaData['lid']},"start":"{metaData['startDate']} {metaData['time']}","end":"{metaData['startDate']} {end_time_string}","checksum":"{checksum}"}}]
+''' + bookings + '''
 ------WebKitFormBoundaryhdaUJdAeBSWES7e8
 Content-Disposition: form-data; name="returnUrl"
 
@@ -139,8 +121,16 @@ Content-Disposition: form-data; name="method"
 
 12
 ------WebKitFormBoundaryhdaUJdAeBSWES7e8--'''
-    # DO NOT TOUCH THIS FORMATTING OR INDENTATION>
 
-    response = requests.post(url, headers=headers, data=data)
+    url = 'https://uta.libcal.com/ajax/space/book'
+    custom_headers = headers.copy()
+    custom_headers['content-type'] = 'multipart/form-data; boundary=----WebKitFormBoundaryhdaUJdAeBSWES7e8'
+    
+    response = requests.post(url, headers=custom_headers, data=data)
     response.ok and print('Seat booked successfully!')
-    not response.ok and print('Failed to book your seat! Check payload.')
+    not response.ok and print('Failed to book your seat! Check payload.', response.text)
+
+    if not response.ok:
+        raise InterruptedError('Failed to book your seat! Please try again later.')
+    
+    return 'Seat booked successfully! Check your email for more details.'
