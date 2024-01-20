@@ -1,6 +1,7 @@
 var reservePayload = {}
 
 window.onload = () => {
+    const dateElement = document.getElementById("startDate");
     const d = new Date();
     const today = d.toISOString().slice(0, 10);
 
@@ -8,8 +9,9 @@ window.onload = () => {
     futureDate.setDate(futureDate.getDate() + 15);
     const maxDate = futureDate.toISOString().slice(0, 10);
 
-    document.getElementById("startDate").setAttribute("min", today);
-    document.getElementById("startDate").setAttribute("max", maxDate);
+    dateElement.value = today;
+    dateElement.setAttribute("min", today);
+    dateElement.setAttribute("max", maxDate);
 }
 
 document.getElementById('search').addEventListener('click', (e) => {
@@ -22,6 +24,11 @@ document.getElementById('search').addEventListener('click', (e) => {
 
     if (!itemId || !lname || !fname || !email || !startDate) {
         displayError("All fields are mandatory!");
+        return;
+    }
+
+    if (!email.includes('mavs.uta.edu')) {
+        displayError("Please enter Maverick Email ID!");
         return;
     }
 
