@@ -4,6 +4,9 @@ from flask import Flask, render_template, request
 from flask_restful import Api, Resource
 from flask_cors import CORS
 from libseat import get_next_delta, search, add, bulk_book
+from calendar_service import send_email_with_invite
+from datetime import datetime
+import pytz
 
 app = Flask(__name__)
 api = Api(app)
@@ -69,6 +72,28 @@ class ReserveSlots(Resource):
             
             metaData['bookings'] = bookings
             res = bulk_book(metaData)
+
+            startTime = datetime.strptime(data['startDate'] + 'T' + data['bookings'][0]['time'].split(' to ')[0], '%Y-%m-%dT%H:%M').replace(tzinfo=pytz.timezone('America/Chicago'))
+            endTime = datetime.strptime(data['startDate'] + 'T' + data['bookings'][len(bookings) - 1]['time'].split(' to ')[1], '%Y-%m-%dT%H:%M').replace(tzinfo=pytz.timezone('America/Chicago'))
+
+            # Event details
+            event_details = {
+                'summary': 'Library Room Scheduled',
+                'start': startTime,
+                'end': endTime,
+                'location': 'UTA Central Library',
+                'description': 'Study/Work/Entertainment Time'
+            }
+
+            # Send the email
+            send_email_with_invite(
+                sender_email=os.environ['EMAIL_ID'],
+                sender_password=os.environ['EMAIL_PASSWORD'],
+                recipient_email='kowligi1998@gmail.com',
+                subject=f'Room (possibly, intermittently) Scheduled from {startTime} to {endTime} on {metaData["startDate"]}',
+                body='Please find the meeting invite attached.',
+                event_details=event_details
+            )
         except InterruptedError:
             return {'err': res}
         
