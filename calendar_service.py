@@ -1,4 +1,5 @@
 import smtplib
+import uuid
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -30,7 +31,7 @@ def send_email_with_invite(sender_email, sender_password, recipient_email, subje
     event.add('dtstamp', datetime.now(pytz.timezone('America/Chicago')))
     event.add('location', event_details['location'])
     event.add('description', event_details['description'])
-    event['uid'] = 'kowligi1998@gmail.com'
+    event['uid'] = uuid.uuid4()
 
     organizer = vCalAddress('MAILTO:' + sender_email)
     organizer.params['cn'] = 'LibSeat'
