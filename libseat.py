@@ -18,10 +18,10 @@ headers = {
 
 # hard-coded 5th floor room mappings
 room_mappings = {
-    '519 (Capacity 5)': 111713,
-    '520A (Capacity 6)': 111714,
-    '520B (Capacity 3)': 111716,
-    '520C (Capacity 2)': 130324
+    111713: '519 (Capacity 5)',
+    111714: '520A (Capacity 6)',
+    111716: '520B (Capacity 3)',
+    130324: '520C (Capacity 2)'
 }
 
 def get_next_delta(dt, delta_type, delta_value):
@@ -35,13 +35,6 @@ def get_next_delta(dt, delta_type, delta_value):
         new_time = time_obj + timedelta(minutes=delta_value)
         end_time_string = new_time.strftime("%H:%M")
         return end_time_string
-
-def choose_a_room():
-    print('Enter the room you want in 5th floor:')
-    for index, room in enumerate(room_mappings.keys()):
-        print(index + 1, '--->', room)
-    ch = int(input("\nEnter your choice:\n> ")) - 1
-    return room_mappings[list(room_mappings.keys())[ch]]
 
 def search(metaData):
     data = {

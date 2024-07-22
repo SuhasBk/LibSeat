@@ -3,7 +3,7 @@ import os, sys
 from flask import Flask, render_template, request
 from flask_restful import Api, Resource
 from flask_cors import CORS
-from libseat import get_next_delta, search, add, bulk_book
+from libseat import get_next_delta, search, add, bulk_book, room_mappings
 from calendar_service import send_email_with_invite
 from datetime import datetime
 import pytz
@@ -81,7 +81,7 @@ class ReserveSlots(Resource):
                 'summary': 'Library Room Scheduled',
                 'start': startTime,
                 'end': endTime,
-                'location': 'UTA Central Library',
+                'location': f'UTA Central Library - {room_mappings[metaData["itemId"]]}',
                 'description': 'Study/Work/Entertainment Time'
             }
 
