@@ -89,7 +89,7 @@ class ReserveSlots(Resource):
             send_email_with_invite(
                 sender_email=os.environ['EMAIL_ID'],
                 sender_password=os.environ['EMAIL_PASSWORD'],
-                recipient_email='kowligi1998@gmail.com',
+                recipient_email='sxk7070@mavs.uta.edu',
                 subject=f'Room (possibly, intermittently) Scheduled from {startTime} to {endTime} on {metaData["startDate"]}',
                 body='Please find the meeting invite attached.',
                 event_details=event_details
